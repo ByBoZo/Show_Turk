@@ -1,0 +1,13 @@
+{
+  "channels": [
+    {
+      "name": "Show Türk",
+      "url": "https://www.showturk.com.tr/canli-yayin",
+      "type": "showturk",
+      "logo": "https://i.postimg.cc/tR2dkHH3/Show-Turk-logo.png",
+      "group": "TR: ULUSAL"
+    }
+  ],
+  "output_folder": "playlist",
+  "output_playlist": "playerlist.m3u"
+}
