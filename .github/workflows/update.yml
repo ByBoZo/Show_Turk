@@ -1,0 +1,32 @@
+name: Update Show Türk Token
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Her saat başı (1 saatte bir)
+  workflow_dispatch:  # Manuel tetikleme
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+    
+    - name: Run script
+      run: python showturk.py
+    
+    - name: Commit and push
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add playlist/
+        git diff --quiet && git diff --staged --quiet || git commit -m "🔄 Update Show Türk token (hourly) [skip ci]"
+        git push
