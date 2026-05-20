@@ -2,10 +2,12 @@ name: Update Show Türk Token
 
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *'  # Her saat başı
+  workflow_dispatch:  # Manuel tetikleme
+  # YENİ: Push'da da test için (isteğe bağlı)
+  push:
+    branches: [ main ]
 
-# ✅ BUNU EKLEYİN - Yazma izni verir
 permissions:
   contents: write
 
@@ -15,6 +17,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        # YENİ: Token yenileme için gerekli
+        persist-credentials: true
     
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -22,15 +27,32 @@ jobs:
         python-version: '3.9'
     
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
     
     - name: Run script
       run: python showturk.py
+      env:
+        # YENİ: Debug için
+        PYTHONUNBUFFERED: 1
+    
+    - name: Check for changes
+      id: git-check
+      run: |
+        git add playlist/
+        if git diff --cached --quiet; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "✔️ Değişiklik yok"
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "ℹ️ Değişiklik var"
+        fi
     
     - name: Commit and push
+      if: steps.git-check.outputs.changed == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add playlist/
-        git diff --quiet && git diff --staged --quiet || git commit -m "🔄 Update Show Türk token (hourly) [skip ci]"
+        git commit -m "✅ Update Show Türk"
         git push
